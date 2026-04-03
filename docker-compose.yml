@@ -1,0 +1,44 @@
+services:
+  guacdb:
+    container_name: guacamoledb
+    image: mysql:9.4.0
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
+      MYSQL_DATABASE: "guacamole_db"
+      MYSQL_USER: "mysql"
+      MYSQL_PASSWORD: "${MYSQL_PASSWORD}"
+    volumes:
+      - './db-data:/var/lib/mysql'
+
+  guacd:
+    container_name: guacd
+    image: guacamole/guacd:1.6.0
+    restart: always
+    volumes:
+      - /opt/guacamole/recordings:/var/lib/guacamole/recordings:rw
+      - /opt/guacamole/share:/opt/guacamole/share:rw
+
+  guacamole:
+    container_name: guacamole
+    image: guacamole/guacamole:1.6.0
+    restart: always
+    expose:
+      - "8080"
+    environment:
+      GUACD_HOSTNAME: "guacd"
+      MYSQL_HOSTNAME: "guacdb"
+      MYSQL_DATABASE: "guacamole_db"
+      MYSQL_USERNAME: "mysql"
+      MYSQL_PASSWORD: "${MYSQL_PASSWORD}"
+      TOTP_ENABLED: "true" #active le MFA
+      RECORDING_ENABLED: "true"
+      REMOTE_IP_VALVE_ENABLED: "true"
+      REMOTE_IP_VALVE_INTERNAL_PROXIES: "172\\.18\\.0\\.1" #évite de ban l'ip du conteneur et bloquer tout le monde
+      BAN_ADDRESS_DURATION: "1800" #Ban de l'adresse à 30 min (1800s)
+    depends_on:
+      - guacdb
+      - guacd
+
+volumes:
+  db-data:
