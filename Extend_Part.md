@@ -2,6 +2,10 @@
 
 Cette procédure s'applique lorsque l'on souhaite étendre un disque principal (ex: `/dev/sda`) dont l'espace a été agrandi côté hyperviseur (VMware), en créant une **nouvelle partition** pour combler l'espace vide, puis en l'ajoutant au Volume Group (VG) existant.
 
+Lors de l'extension du disque pour mettre à jour ses infos et bien avoir le stockage alloué, taper la commande : 
+```
+echo 1 > /sys/block/sdX/device/rescan
+```
 ---
 
 ## 1. Modification de la table de partition
